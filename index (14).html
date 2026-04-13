@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Quiz Title</h1>
+    <form id="quiz-form">
+        <div>
+            <label for="input-name">Name:</label>
+            <input type="text" id="input-name" required>
+        </div>
+        <div>
+            <label for="input-email">Email:</label>
+            <input type="email" id="input-email" required>
+        </div>
+        <!-- Quiz questions would go here -->
+        <button type="submit" id="submit-btn">Submit</button>
+        <div id="submit-spinner" class="hidden">Loading...</div>
+        <div id="submit-text"></div>
+    </form>
+    <div id="results" class="hidden"></div>
+    
+    <script>
+        document.getElementById('quiz-form').addEventListener('submit', submitLead);
+
+        function submitLead(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('input-name').value.trim();
+            const email = document.getElementById('input-email').value.trim();
+
+            if (!name || !email) return;
+
+            // Example of how to get the top result
+            const topResult = "example_result"; // Replace with actual logic
+
+            // Show loading state
+            document.getElementById('submit-spinner').classList.add('active');
+            document.getElementById('submit-text').textContent = 'Processing...';
+            document.getElementById('submit-btn').disabled = true;
+
+            // Send data to Make webhook
+            fetch('https://hook.eu1.make.com/4o0yyuu2g16ikm3owle2nsrqhaox6g6d', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    quiz_result: topResult // sends result here
+                })
+            })
+            .then(() => {
+                showResults(topResult, name);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('There was an error processing your submission. Please try again.');
+            });
+        }
+
+        function showResults(result, name) {
+            document.getElementById('results').textContent = `Thank you, ${name}! Your result is: ${result}`;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('quiz-form').reset();
+            document.getElementById('submit-spinner').classList.remove('active');
+            document.getElementById('submit-btn').disabled = false;
+        }
+    </script>
+</body>
+</html>
